@@ -157,12 +157,20 @@ function NavBar({ page, goTo }) {
    LANDING PAGE
    ============================================================ */
 function LandingPage({ goTo, LANDING_BG }) {
-  const btnBase = {
-    position: "absolute",
-    width: "17.4%",
-    height: "8.3%",
-    top: "55.2%",
+  // Buttons scale with viewport and can wrap on very small screens.
+  const landingBtnStyle = {
+    width: "100%",
+    height: "100%",
+    fontSize: "clamp(9px, 3.6vw, 26px)",
+    padding: "clamp(4px, 1.4vw, 16px) clamp(6px, 2.2vw, 24px)",
+    whiteSpace: "normal",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    overflow: "hidden",
   };
+
   return (
     <div
       style={{
@@ -175,21 +183,40 @@ function LandingPage({ goTo, LANDING_BG }) {
         overflow: "hidden",
       }}
     >
-      <div style={{ position: "absolute", left: "4.5%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("apply")}>
-    APPLY
-  </PillButton>
-</div>
-<div style={{ position: "absolute", left: "38.5%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("gallery")}>
-    GALLERY
-  </PillButton>
-</div>
-<div style={{ position: "absolute", left: "73%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("checker")}>
-    CHECKER
-  </PillButton>
-</div>
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: "50%",
+          transform: "translateY(-50%)",
+          display: "flex",
+          justifyContent: "center",
+          gap: "3%",
+          padding: "0 4%",
+          boxSizing: "border-box",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("apply")}>
+            APPLY
+          </PillButton>
+        </div>
+
+        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("gallery")}>
+            GALLERY
+          </PillButton>
+        </div>
+
+        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("checker")}>
+            CHECKER
+          </PillButton>
+        </div>
+      </div>
     </div>
   );
 }
@@ -204,12 +231,12 @@ function ApplyRow({ label, children }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: "16px",
+        gap: "12px",
         background: "#000",
         borderRadius: "22px",
-        padding: "18px 26px",
+        padding: "18px 20px",
         boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
-        flexWrap: "wrap",
+        flexWrap: "nowrap", // never drop the input to a new line
       }}
     >
       <span
@@ -217,14 +244,15 @@ function ApplyRow({ label, children }) {
           fontFamily: "'Baloo 2', sans-serif",
           color: "#fff",
           fontWeight: 600,
-          fontSize: "clamp(14px, 1.6vw, 19px)",
+          fontSize: "clamp(12px, 3vw, 19px)",
+          flex: "1 1 auto",
+          minWidth: 0, // lets the label wrap onto 2 lines instead of pushing the input out
         }}
       >
         {label}
       </span>
-      {/* Fixed-width slot so every button/input on the right lines up
-          and matches size, exactly like the Figma. */}
-      <div style={{ width: "230px", maxWidth: "100%", flexShrink: 0 }}>
+      {/* Right-side slot: fixed on desktop, shrinks gracefully on mobile */}
+      <div style={{ width: "clamp(110px, 38vw, 230px)", flexShrink: 0 }}>
         {children}
       </div>
     </div>
@@ -535,9 +563,6 @@ function CheckerPage() {
 /* ============================================================
    GALLERY PAGE
    ============================================================ */
-/* ============================================================
-   GALLERY PAGE
-   ============================================================ */
 function GalleryPage({ AVATARS }) {
   const [extra, setExtra] = useState([]);
 
@@ -566,7 +591,6 @@ function GalleryPage({ AVATARS }) {
       >
         GALLERY
       </h1>
-      
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "24px" }}>
         <div
