@@ -11,7 +11,7 @@ import avatar6 from "./assets/avatar_6.webp";
 import avatar7 from "./assets/avatar_7.webp";
 import avatar8 from "./assets/avatar_8.webp";
 import avatar9 from "./assets/avatar_9.webp";
-import landingBg from "./assets/landingpage.svg";
+import landingBg from "./assets/landing_bg.webp";
 
 const AVATARS = [avatar0, avatar1, avatar2, avatar3, avatar4, avatar5, avatar6, avatar7, avatar8, avatar9];
 const LANDING_BG = landingBg;
