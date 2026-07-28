@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { getApplications, saveApplications, getExtraGallery, getApplicationsFromSheet } from "./storage.js";
+import { getApplications, saveApplications, getExtraGallery, getApplicationsFromSheet, saveApplicationToSheet } from "./storage.js";
 
 import avatar0 from "./assets/avatar_0.webp";
 import avatar1 from "./assets/avatar_1.webp";
@@ -305,7 +305,7 @@ function ApplyPage() {
   const [form, setForm] = useState({
     followed: false,
     username: "",
-    tagLink: "",
+    commentLink: "",
     likedRT: false,
     qtLink: "",
     wallet: "",
@@ -332,7 +332,7 @@ function ApplyPage() {
     );
     const entry = {
       username: form.username.trim().replace(/^@/, ""),
-      tagLink: form.tagLink.trim(),
+      commentLink: form.commentLink.trim(),
       qtLink: form.qtLink.trim(),
       wallet: form.wallet.trim(),
       submittedAt: new Date().toISOString(),
@@ -340,10 +340,13 @@ function ApplyPage() {
     };
     if (existingIdx >= 0) list[existingIdx] = entry;
     else list.push(entry);
-    const ok = await saveApplications(list);
+    const okLocal = await saveApplications(list);
+    const okSheet = await saveApplicationToSheet(entry);
     setSubmitting(false);
-    if (ok) {
+    if (okLocal && okSheet) {
       setStatus({ type: "success", msg: "Application received! Head to Checker any time to see your status." });
+    } else if (okLocal) {
+      setStatus({ type: "success", msg: "Application saved locally. Sheet write was skipped or failed." });
     } else {
       setStatus({ type: "error", msg: "Couldn't save right now — please try again." });
     }
@@ -394,12 +397,12 @@ function ApplyPage() {
             />
           </ApplyRow>
 
-          <ApplyRow label="Tag 3 friends in pinned post">
+          <ApplyRow label="Comment link">
             <input
               style={inputStyle}
               placeholder="comment link"
-              value={form.tagLink}
-              onChange={set("tagLink")}
+              value={form.commentLink}
+              onChange={set("commentLink")}
             />
           </ApplyRow>
 
@@ -471,6 +474,12 @@ function CheckerPage() {
   const [result, setResult] = useState(null); // null | {found, entry, error}
   const [checking, setChecking] = useState(false);
 
+  const formatDate = (value) => {
+    if (!value) return null;
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleString();
+  };
+
   const handleCheck = async () => {
     setResult(null);
     if (!isValidEth(addr)) {
@@ -479,6 +488,11 @@ function CheckerPage() {
     }
     setChecking(true);
     const sheetList = await getApplicationsFromSheet();
+    if (sheetList === null) {
+      setChecking(false);
+      setResult({ error: "Unable to read the Google Sheet. Make sure the sheet is public and accessible from your app." });
+      return;
+    }
     const list = sheetList.length > 0 ? sheetList : await getApplications();
     const entry = list.find((a) => (a.wallet || "").toLowerCase() === addr.trim().toLowerCase());
     setChecking(false);
@@ -574,14 +588,19 @@ function CheckerPage() {
                 ✅ Whitelisted — status: {result.entry.status}
               </div>
               <div>Username: @{result.entry.username}</div>
-              <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "6px" }}>
-                Applied {new Date(result.entry.submittedAt).toLocaleString()}
-              </div>
+              {(() => {
+                const formatted = formatDate(result.entry.submittedAt);
+                return formatted ? (
+                  <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "6px" }}>
+                    Applied {formatted}
+                  </div>
+                ) : null;
+              })()}
             </div>
           )}
           {result.found === false && (
             <div>
-              No application found for that wallet yet. Head to Apply to submit one.
+              Please Apply. No application was found for that wallet yet.
             </div>
           )}
         </div>

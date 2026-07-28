@@ -53,32 +53,79 @@ async function writeKey(key, value) {
   }
 }
 
-const GOOGLE_SHEET_ID = "1osfCgLcoFKaNKtlv5bjqmT0hcXAxSjrIPwc9XNL9b3w";
-const GOOGLE_SHEET_TAB = "Sheet1";
-
 async function fetchGoogleSheetRows() {
   if (!GOOGLE_SHEET_ID) return [];
   const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_TAB)}`;
   try {
     const res = await fetch(url);
-    if (!res.ok) return [];
+    if (!res.ok || res.url.includes("ServiceLogin")) return null;
     const raw = await res.text();
     const json = JSON.parse(raw.replace(/^.*?\(/s, "").replace(/\);?$/, ""));
     const cols = json.table.cols.map((col) => (col.label || col.id || "").toString().trim());
-    return json.table.rows.map((row) => {
+    const rows = json.table.rows.map((row) => row.c.map((cell) => cell?.v ?? ""));
+
+    let headers = cols;
+    let dataRows = rows;
+    const genericHeaders = headers.every((h, idx) => h === "" || h === String.fromCharCode(65 + idx));
+    if (genericHeaders && rows.length > 0) {
+      headers = rows[0].map((value) => String(value || "").trim());
+      dataRows = rows.slice(1);
+    }
+
+    const roleForIndex = headers.map((c) => {
+      const low = (c || "").toLowerCase();
+      if (low.includes("wallet") || low.includes("address")) return "wallet";
+      if (low.includes("user") || low.includes("username") || low.includes("handle")) return "username";
+      if (low.includes("tag") || low.includes("comment") || low.includes("mention")) return "commentLink";
+      if (low.includes("qt") || low.includes("quote")) return "qtLink";
+      if (low.includes("status")) return "status";
+      if (low.includes("submitted") || low.includes("date") || low.includes("time")) return "submittedAt";
+      return null;
+    });
+
+    return dataRows.map((row) => {
       const item = {};
-      row.c.forEach((cell, idx) => {
-        item[cols[idx] || `col${idx}`] = cell?.v ?? "";
+      row.forEach((rawValue, idx) => {
+        const cellValue = String(rawValue || "");
+        const role = roleForIndex[idx];
+        if (role === "wallet") item.wallet = cellValue;
+        else if (role === "username") item.username = cellValue;
+        else if (role === "commentLink") item.commentLink = cellValue;
+        else if (role === "qtLink") item.qtLink = cellValue;
+        else if (role === "status") item.status = cellValue;
+        else if (role === "submittedAt") item.submittedAt = cellValue;
+        else item[headers[idx] || `col${idx}`] = cellValue;
       });
       return item;
     });
   } catch (e) {
-    return [];
+    return null;
+  }
+}
+
+const GOOGLE_SHEET_ID = "1osfCgLcoFKaNKtlv5bjqmT0hcXAxSjrIPwc9XNL9b3w";
+const GOOGLE_SHEET_TAB = "Anomalies-whitelist";
+const GOOGLE_SHEET_WRITE_URL = "https://script.google.com/macros/s/AKfycbyO0pbOIE1BONgMkvrGlLAheWR8LcnuLuI7uyT03CJ4CfDjA0bOzjjNhizhgPx8QtPqbw/exec";
+
+async function postApplicationToGoogleSheet(entry) {
+  if (!GOOGLE_SHEET_WRITE_URL) return true;
+  try {
+    const params = new URLSearchParams();
+    Object.keys(entry).forEach((k) => params.append(k, entry[k] == null ? "" : String(entry[k])));
+    const res = await fetch(GOOGLE_SHEET_WRITE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: params.toString(),
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
   }
 }
 
 export const getApplications = () => readKey(APPLICATIONS_KEY, []);
 export const saveApplications = (list) => writeKey(APPLICATIONS_KEY, list);
 export const getApplicationsFromSheet = () => fetchGoogleSheetRows();
+export const saveApplicationToSheet = (entry) => postApplicationToGoogleSheet(entry);
 export const getExtraGallery = () => readKey(GALLERY_KEY, []);
 export const saveExtraGallery = (list) => writeKey(GALLERY_KEY, list);
