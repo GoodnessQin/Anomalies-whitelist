@@ -183,36 +183,65 @@ function LandingPage({ goTo, LANDING_BG }) {
         overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          top: "50%",
-          transform: "translateY(-50%)",
-          display: "flex",
-          justifyContent: "center",
-          gap: "3%",
-          padding: "0 4%",
-          boxSizing: "border-box",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
+      <style>{`
+        .landing-button-row {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          justify-content: center;
+          gap: 3%;
+          padding: 0 4%;
+          box-sizing: border-box;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        .landing-button-row > div {
+          flex: 1 1 28%;
+          min-width: 120px;
+          max-width: 300px;
+        }
+        @media (max-width: 520px) {
+          .landing-button-row {
+            top: 44%;
+            gap: 14px;
+          }
+          .landing-button-row > div {
+            flex: 1 1 70%;
+            max-width: 320px;
+          }
+        }
+        @media (max-width: 420px) {
+          .landing-button-row {
+            flex-direction: column;
+            top: 48%;
+          }
+          .landing-button-row > div {
+            width: 100%;
+            max-width: 320px;
+          }
+          .landing-button-row > div.checker-button {
+            margin-top: 16px;
+          }
+        }
+      `}</style>
+      <div className="landing-button-row">
         <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("apply")}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("apply") }>
             APPLY
           </PillButton>
         </div>
 
         <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("gallery")}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("gallery") }>
             GALLERY
           </PillButton>
         </div>
 
-        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("checker")}>
+        <div className="checker-button" style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
+          <PillButton style={landingBtnStyle} onClick={() => goTo("checker") }>
             CHECKER
           </PillButton>
         </div>
