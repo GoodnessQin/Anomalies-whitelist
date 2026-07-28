@@ -585,7 +585,7 @@ function CheckerPage() {
           {result.found && (
             <div>
               <div style={{ fontSize: "20px", marginBottom: "6px" }}>
-                ✅ Whitelisted — status: {result.entry.status}
+                ✅ Whitelisted status: {result.entry.status}
               </div>
               <div>Username: @{result.entry.username}</div>
               {(() => {
