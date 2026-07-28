@@ -53,7 +53,32 @@ async function writeKey(key, value) {
   }
 }
 
+const GOOGLE_SHEET_ID = "1osfCgLcoFKaNKtlv5bjqmT0hcXAxSjrIPwc9XNL9b3w";
+const GOOGLE_SHEET_TAB = "Sheet1";
+
+async function fetchGoogleSheetRows() {
+  if (!GOOGLE_SHEET_ID) return [];
+  const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(GOOGLE_SHEET_TAB)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const raw = await res.text();
+    const json = JSON.parse(raw.replace(/^.*?\(/s, "").replace(/\);?$/, ""));
+    const cols = json.table.cols.map((col) => (col.label || col.id || "").toString().trim());
+    return json.table.rows.map((row) => {
+      const item = {};
+      row.c.forEach((cell, idx) => {
+        item[cols[idx] || `col${idx}`] = cell?.v ?? "";
+      });
+      return item;
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
 export const getApplications = () => readKey(APPLICATIONS_KEY, []);
 export const saveApplications = (list) => writeKey(APPLICATIONS_KEY, list);
+export const getApplicationsFromSheet = () => fetchGoogleSheetRows();
 export const getExtraGallery = () => readKey(GALLERY_KEY, []);
 export const saveExtraGallery = (list) => writeKey(GALLERY_KEY, list);

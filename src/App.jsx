@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { getApplications, saveApplications, getExtraGallery } from "./storage.js";
+import { getApplications, saveApplications, getExtraGallery, getApplicationsFromSheet } from "./storage.js";
 
 import avatar0 from "./assets/avatar_0.webp";
 import avatar1 from "./assets/avatar_1.webp";
@@ -478,8 +478,9 @@ function CheckerPage() {
       return;
     }
     setChecking(true);
-    const list = await getApplications();
-    const entry = list.find((a) => a.wallet.toLowerCase() === addr.trim().toLowerCase());
+    const sheetList = await getApplicationsFromSheet();
+    const list = sheetList.length > 0 ? sheetList : await getApplications();
+    const entry = list.find((a) => (a.wallet || "").toLowerCase() === addr.trim().toLowerCase());
     setChecking(false);
     if (entry) {
       setResult({ found: true, entry });
