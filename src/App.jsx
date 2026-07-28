@@ -216,7 +216,7 @@ function LandingPage({ goTo, LANDING_BG }) {
         @media (max-width: 420px) {
           .landing-button-row {
             flex-direction: column;
-            top: 48%;
+            top: 42%;
           }
           .landing-button-row > div {
             width: 100%;
