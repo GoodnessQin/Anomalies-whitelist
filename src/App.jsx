@@ -397,7 +397,7 @@ function ApplyPage() {
             />
           </ApplyRow>
 
-          <ApplyRow label="Comment link">
+          <ApplyRow label="Tag 3 friends in pinned post">
             <input
               style={inputStyle}
               placeholder="comment link"
