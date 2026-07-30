@@ -157,12 +157,6 @@ function NavBar({ page, goTo }) {
    LANDING PAGE
    ============================================================ */
 function LandingPage({ goTo, LANDING_BG }) {
-  const btnBase = {
-    position: "absolute",
-    width: "17.4%",
-    height: "8.3%",
-    top: "55.2%",
-  };
   return (
     <div
       style={{
@@ -175,21 +169,34 @@ function LandingPage({ goTo, LANDING_BG }) {
         overflow: "hidden",
       }}
     >
-      <div style={{ position: "absolute", left: "4.5%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("apply")}>
-    APPLY
-  </PillButton>
-</div>
-<div style={{ position: "absolute", left: "38.5%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("gallery")}>
-    GALLERY
-  </PillButton>
-</div>
-<div style={{ position: "absolute", left: "73%", top: "51%", width: "22%", height: "11%" }}>
-  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("checker")}>
-    CHECKER
-  </PillButton>
-</div>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-end",
+          paddingBottom: "clamp(24px, 4vw, 42px)",
+          gap: "clamp(10px, 2vw, 24px)",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ width: "clamp(140px, 22vw, 220px)" }}>
+          <PillButton style={{ width: "100%", height: "clamp(52px, 8vw, 74px)", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("apply")}>
+            APPLY
+          </PillButton>
+        </div>
+        <div style={{ width: "clamp(140px, 22vw, 220px)" }}>
+          <PillButton style={{ width: "100%", height: "clamp(52px, 8vw, 74px)", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("gallery")}>
+            GALLERY
+          </PillButton>
+        </div>
+        <div style={{ width: "clamp(140px, 22vw, 220px)" }}>
+          <PillButton style={{ width: "100%", height: "clamp(52px, 8vw, 74px)", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("checker")}>
+            CHECKER
+          </PillButton>
+        </div>
+      </div>
     </div>
   );
 }
@@ -222,9 +229,7 @@ function ApplyRow({ label, children }) {
       >
         {label}
       </span>
-      {/* Fixed-width slot so every button/input on the right lines up
-          and matches size, exactly like the Figma. */}
-      <div style={{ width: "230px", maxWidth: "100%", flexShrink: 0 }}>
+      <div style={{ width: "100%", maxWidth: "260px", marginLeft: "auto" }}>
         {children}
       </div>
     </div>
@@ -282,12 +287,12 @@ function ApplyPage() {
       status: "pending",
     };
     const sheetEntry = {
-      Username: entry.username,
-      CommentLink: entry.commentLink,
-      QtLink: entry.qtLink,
-      Wallet: entry.wallet,
-      submittedAt: entry.submittedAt,
-      status: entry.status,
+      Username: entry.username || "",
+      CommentLink: entry.commentLink || "",
+      QtLink: entry.qtLink || "",
+      Wallet: entry.wallet || "",
+      submittedAt: entry.submittedAt || new Date().toISOString(),
+      status: entry.status || "pending",
     };
     if (existingIdx >= 0) list[existingIdx] = entry;
     else list.push(entry);

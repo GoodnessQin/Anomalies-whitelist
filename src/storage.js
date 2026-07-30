@@ -105,17 +105,18 @@ async function fetchGoogleSheetRows() {
 
 const GOOGLE_SHEET_ID = "1osfCgLcoFKaNKtlv5bjqmT0hcXAxSjrIPwc9XNL9b3w";
 const GOOGLE_SHEET_TAB = "Anomalies-whitelist";
-const GOOGLE_SHEET_WRITE_URL = "https://script.google.com/macros/s/AKfycbyO0pbOIE1BONgMkvrGlLAheWR8LcnuLuI7uyT03CJ4CfDjA0bOzjjNhizhgPx8QtPqbw/exec";
+const GOOGLE_SHEET_WRITE_URL = "/api/applications";
 
 async function postApplicationToGoogleSheet(entry) {
   if (!GOOGLE_SHEET_WRITE_URL) return true;
   try {
-    const params = new URLSearchParams();
-    Object.keys(entry).forEach((k) => params.append(k, entry[k] == null ? "" : String(entry[k])));
     const res = await fetch(GOOGLE_SHEET_WRITE_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-      body: params.toString(),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(entry),
     });
     return res.ok;
   } catch (e) {
