@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { getApplications, saveApplications, getExtraGallery, getApplicationsFromSheet, saveApplicationToSheet } from "./storage.js";
+import { getApplications, saveApplications, getExtraGallery, saveApplicationToSheet } from "./storage.js";
 
 import avatar0 from "./assets/avatar_0.webp";
 import avatar1 from "./assets/avatar_1.webp";
@@ -157,20 +157,12 @@ function NavBar({ page, goTo }) {
    LANDING PAGE
    ============================================================ */
 function LandingPage({ goTo, LANDING_BG }) {
-  // Buttons scale with viewport and can wrap on very small screens.
-  const landingBtnStyle = {
-    width: "100%",
-    height: "100%",
-    fontSize: "clamp(9px, 3.6vw, 26px)",
-    padding: "clamp(4px, 1.4vw, 16px) clamp(6px, 2.2vw, 24px)",
-    whiteSpace: "normal",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    overflow: "hidden",
+  const btnBase = {
+    position: "absolute",
+    width: "17.4%",
+    height: "8.3%",
+    top: "55.2%",
   };
-
   return (
     <div
       style={{
@@ -183,69 +175,21 @@ function LandingPage({ goTo, LANDING_BG }) {
         overflow: "hidden",
       }}
     >
-      <style>{`
-        .landing-button-row {
-          position: absolute;
-          left: 0;
-          right: 0;
-          top: 50%;
-          transform: translateY(-50%);
-          display: flex;
-          justify-content: center;
-          gap: 3%;
-          padding: 0 4%;
-          box-sizing: border-box;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-        .landing-button-row > div {
-          flex: 1 1 28%;
-          min-width: 120px;
-          max-width: 300px;
-        }
-        @media (max-width: 520px) {
-          .landing-button-row {
-            top: 44%;
-            gap: 14px;
-          }
-          .landing-button-row > div {
-            flex: 1 1 70%;
-            max-width: 320px;
-          }
-        }
-        @media (max-width: 420px) {
-          .landing-button-row {
-            flex-direction: column;
-            top: 42%;
-          }
-          .landing-button-row > div {
-            width: 100%;
-            max-width: 320px;
-          }
-          .landing-button-row > div.checker-button {
-            margin-top: 16px;
-          }
-        }
-      `}</style>
-      <div className="landing-button-row">
-        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("apply") }>
-            APPLY
-          </PillButton>
-        </div>
-
-        <div style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("gallery") }>
-            GALLERY
-          </PillButton>
-        </div>
-
-        <div className="checker-button" style={{ flex: "1 1 28%", minWidth: 120, maxWidth: 300 }}>
-          <PillButton style={landingBtnStyle} onClick={() => goTo("checker") }>
-            CHECKER
-          </PillButton>
-        </div>
-      </div>
+      <div style={{ position: "absolute", left: "4.5%", top: "51%", width: "22%", height: "11%" }}>
+  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("apply")}>
+    APPLY
+  </PillButton>
+</div>
+<div style={{ position: "absolute", left: "38.5%", top: "51%", width: "22%", height: "11%" }}>
+  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("gallery")}>
+    GALLERY
+  </PillButton>
+</div>
+<div style={{ position: "absolute", left: "73%", top: "51%", width: "22%", height: "11%" }}>
+  <PillButton style={{ width: "100%", height: "100%", fontSize: "clamp(18px, 2.2vw, 26px)" }} onClick={() => goTo("checker")}>
+    CHECKER
+  </PillButton>
+</div>
     </div>
   );
 }
@@ -260,12 +204,12 @@ function ApplyRow({ label, children }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: "12px",
+        gap: "16px",
         background: "#000",
         borderRadius: "22px",
-        padding: "18px 20px",
+        padding: "18px 26px",
         boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
-        flexWrap: "nowrap", // never drop the input to a new line
+        flexWrap: "wrap",
       }}
     >
       <span
@@ -273,15 +217,14 @@ function ApplyRow({ label, children }) {
           fontFamily: "'Baloo 2', sans-serif",
           color: "#fff",
           fontWeight: 600,
-          fontSize: "clamp(12px, 3vw, 19px)",
-          flex: "1 1 auto",
-          minWidth: 0, // lets the label wrap onto 2 lines instead of pushing the input out
+          fontSize: "clamp(14px, 1.6vw, 19px)",
         }}
       >
         {label}
       </span>
-      {/* Right-side slot: fixed on desktop, shrinks gracefully on mobile */}
-      <div style={{ width: "clamp(110px, 38vw, 230px)", flexShrink: 0 }}>
+      {/* Fixed-width slot so every button/input on the right lines up
+          and matches size, exactly like the Figma. */}
+      <div style={{ width: "230px", maxWidth: "100%", flexShrink: 0 }}>
         {children}
       </div>
     </div>
@@ -338,10 +281,18 @@ function ApplyPage() {
       submittedAt: new Date().toISOString(),
       status: "pending",
     };
+    const sheetEntry = {
+      Username: entry.username,
+      CommentLink: entry.commentLink,
+      QtLink: entry.qtLink,
+      Wallet: entry.wallet,
+      submittedAt: entry.submittedAt,
+      status: entry.status,
+    };
     if (existingIdx >= 0) list[existingIdx] = entry;
     else list.push(entry);
     const okLocal = await saveApplications(list);
-    const okSheet = await saveApplicationToSheet(entry);
+    const okSheet = await saveApplicationToSheet(sheetEntry);
     setSubmitting(false);
     if (okLocal && okSheet) {
       setStatus({ type: "success", msg: "Application received! Head to Checker any time to see your status." });
@@ -474,12 +425,6 @@ function CheckerPage() {
   const [result, setResult] = useState(null); // null | {found, entry, error}
   const [checking, setChecking] = useState(false);
 
-  const formatDate = (value) => {
-    if (!value) return null;
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleString();
-  };
-
   const handleCheck = async () => {
     setResult(null);
     if (!isValidEth(addr)) {
@@ -487,14 +432,8 @@ function CheckerPage() {
       return;
     }
     setChecking(true);
-    const sheetList = await getApplicationsFromSheet();
-    if (sheetList === null) {
-      setChecking(false);
-      setResult({ error: "Unable to read the Google Sheet. Make sure the sheet is public and accessible from your app." });
-      return;
-    }
-    const list = sheetList.length > 0 ? sheetList : await getApplications();
-    const entry = list.find((a) => (a.wallet || "").toLowerCase() === addr.trim().toLowerCase());
+    const list = await getApplications();
+    const entry = list.find((a) => a.wallet.toLowerCase() === addr.trim().toLowerCase());
     setChecking(false);
     if (entry) {
       setResult({ found: true, entry });
@@ -585,22 +524,17 @@ function CheckerPage() {
           {result.found && (
             <div>
               <div style={{ fontSize: "20px", marginBottom: "6px" }}>
-                ✅ Whitelisted status: {result.entry.status}
+                ✅ Whitelisted — status: {result.entry.status}
               </div>
               <div>Username: @{result.entry.username}</div>
-              {(() => {
-                const formatted = formatDate(result.entry.submittedAt);
-                return formatted ? (
-                  <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "6px" }}>
-                    Applied {formatted}
-                  </div>
-                ) : null;
-              })()}
+              <div style={{ fontSize: "13px", opacity: 0.75, marginTop: "6px" }}>
+                Applied {new Date(result.entry.submittedAt).toLocaleString()}
+              </div>
             </div>
           )}
           {result.found === false && (
             <div>
-              Please Apply. No application was found for that wallet yet.
+              No application found for that wallet yet. Head to Apply to submit one.
             </div>
           )}
         </div>
@@ -609,6 +543,9 @@ function CheckerPage() {
   );
 }
 
+/* ============================================================
+   GALLERY PAGE
+   ============================================================ */
 /* ============================================================
    GALLERY PAGE
    ============================================================ */
@@ -640,6 +577,7 @@ function GalleryPage({ AVATARS }) {
       >
         GALLERY
       </h1>
+      
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "24px" }}>
         <div
